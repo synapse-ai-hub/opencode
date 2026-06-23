@@ -161,6 +161,10 @@ export const Info = Schema.Struct({
       reserved: Schema.optional(NonNegativeInt).annotate({
         description: "Token buffer for compaction. Leaves enough window to avoid overflow during compaction.",
       }),
+      trigger_threshold: Schema.optional(Schema.Finite).annotate({
+        description:
+          "Fraction of context window that triggers compaction (e.g. 0.8 = 80%). When set, overrides the reserved buffer logic. (default: 0.8)",
+      }),
     }),
   ),
   experimental: Schema.optional(

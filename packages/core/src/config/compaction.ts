@@ -12,4 +12,8 @@ export class Info extends Schema.Class<Info>("ConfigV2.Compaction")({
   prune: Schema.Boolean.pipe(Schema.optional),
   keep: Keep.pipe(Schema.optional),
   buffer: NonNegativeInt.pipe(Schema.optional),
+  triggerThreshold: Schema.optional(Schema.Finite).annotate({
+    description:
+      "Fraction of context window that triggers compaction (e.g. 0.8 = 80%). Overrides the buffer logic.",
+  }),
 }) {}
