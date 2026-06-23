@@ -24,7 +24,8 @@ import { SessionMessage } from "@opencode-ai/core/session/message"
 import { ProviderV2 } from "@opencode-ai/core/provider"
 import { ModelV2 } from "@opencode-ai/core/model"
 import { EventV2 } from "@opencode-ai/core/event"
-import { buildPrompt } from "@opencode-ai/core/session/compaction"
+import { buildPrompt, buildPromptCoD } from "@opencode-ai/core/session/compaction"
+import PROMPT_COMPACTION_COD from "../agent/prompt/compaction-cod.txt"
 
 export const Event = {
   Compacted: EventV2.define({
@@ -149,6 +150,7 @@ export interface Interface {
     sessionID: SessionID
     auto: boolean
     overflow?: boolean
+    strategy?: string
   }) => Effect.Effect<"continue" | "stop">
   readonly create: (input: {
     sessionID: SessionID
@@ -156,6 +158,7 @@ export interface Interface {
     model: { providerID: ProviderV2.ID; modelID: ModelV2.ID }
     auto: boolean
     overflow?: boolean
+    strategy?: string
   }) => Effect.Effect<void>
 }
 
@@ -296,12 +299,59 @@ export const layer = Layer.effect(
       }
     })
 
+    const truncate = Effect.fn("SessionCompaction.truncate")(function* (input: {
+      messages: SessionV1.WithParts[]
+      sessionID: SessionID
+      percent?: number
+    }) {
+      const cfg = yield* config.get()
+      const pct = input.percent ?? cfg.compaction?.truncate_percent ?? 0.3
+      if (pct <= 0 || pct >= 1) return { tail_start_id: undefined }
+
+      const totalTokens = yield* estimate({ messages: input.messages, model: { limit: { context: 999_999_999 } } as any })
+      if (totalTokens === 0) return { tail_start_id: undefined }
+
+      const targetTokens = Math.floor(totalTokens * pct)
+      let accumulated = 0
+      let cutIndex = 0
+
+      for (let i = 0; i < input.messages.length; i++) {
+        const msg = input.messages[i]
+        if (msg.info.role !== "user") continue
+        const tokens = yield* estimate({ messages: [msg], model: { limit: { context: 999_999_999 } } as any })
+        accumulated += tokens
+        if (accumulated >= targetTokens) {
+          cutIndex = i + 1
+          break
+        }
+      }
+
+      // Si no se encontró punto de corte, no truncar
+      if (cutIndex <= 0 || cutIndex >= input.messages.length) return { tail_start_id: undefined }
+
+      const firstKept = input.messages[cutIndex]
+      if (!firstKept || firstKept.info.role !== "user") return { tail_start_id: undefined }
+
+      yield* Effect.logInfo("truncate", {
+        sessionID: input.sessionID,
+        percent: pct,
+        totalTokens,
+        targetTokens,
+        accumulated,
+        cutIndex,
+        tail_start_id: firstKept.info.id,
+      })
+
+      return { tail_start_id: firstKept.info.id }
+    })
+
     const processCompaction = Effect.fn("SessionCompaction.process")(function* (input: {
       parentID: MessageID
       messages: SessionV1.WithParts[]
       sessionID: SessionID
       auto: boolean
       overflow?: boolean
+      strategy?: string
     }) {
       const parent = input.messages.findLast((m) => m.info.id === input.parentID)
       if (!parent || parent.info.role !== "user") {
@@ -335,11 +385,32 @@ export const layer = Layer.effect(
         }
       }
 
+      const cfg = yield* config.get()
+      const strategy = input.strategy ?? compactionPart?.strategy ?? cfg.compaction?.strategy ?? "original"
+
+      // Truncate strategy: cut the beginning, no LLM call needed
+      if (strategy === "truncate") {
+        const result = yield* truncate({
+          messages: input.messages,
+          sessionID: input.sessionID,
+          percent: cfg.compaction?.truncate_percent,
+        })
+        if (result.tail_start_id && compactionPart) {
+          yield* session.updatePart({
+            ...compactionPart,
+            tail_start_id: result.tail_start_id,
+          })
+        }
+        yield* events.publish(Event.Compacted, { sessionID: input.sessionID })
+        return "continue"
+      }
+
       const agent = yield* agents.get("compaction")
+      // For CoD strategy, override the agent's prompt with the CoD prompt
+      const codAgent = strategy === "cod" ? { ...agent, prompt: PROMPT_COMPACTION_COD } : agent
       const model = agent.model
         ? yield* provider.getModel(agent.model.providerID, agent.model.modelID).pipe(Effect.orDie)
         : yield* provider.getModel(userMessage.model.providerID, userMessage.model.modelID).pipe(Effect.orDie)
-      const cfg = yield* config.get()
       const history = compactionPart && messages.at(-1)?.info.id === input.parentID ? messages.slice(0, -1) : messages
       const prior = completedCompactions(history)
       const hidden = new Set(prior.flatMap((item) => [item.userIndex, item.assistantIndex]))
@@ -355,7 +426,9 @@ export const layer = Layer.effect(
         { sessionID: input.sessionID },
         { context: [], prompt: undefined },
       )
-      const nextPrompt = compacting.prompt ?? buildPrompt({ previousSummary, context: compacting.context })
+      const nextPrompt = strategy === "cod"
+        ? (compacting.prompt ?? buildPromptCoD({ previousSummary, context: compacting.context }))
+        : (compacting.prompt ?? buildPrompt({ previousSummary, context: compacting.context }))
       const msgs = structuredClone(selected.head)
       yield* plugin.trigger("experimental.chat.messages.transform", {}, { messages: msgs })
       const modelMessages = yield* MessageV2.toModelMessagesEffect(msgs, model, {
@@ -409,7 +482,7 @@ export const layer = Layer.effect(
       })
       const result = yield* processor.process({
         user: userMessage,
-        agent,
+        agent: codAgent,
         sessionID: input.sessionID,
         tools: {},
         system: [],
@@ -557,6 +630,7 @@ export const layer = Layer.effect(
       model: { providerID: ProviderV2.ID; modelID: ModelV2.ID }
       auto: boolean
       overflow?: boolean
+      strategy?: string
     }) {
       const msg = yield* session.updateMessage({
         id: MessageID.ascending(),
@@ -573,6 +647,7 @@ export const layer = Layer.effect(
         type: "compaction",
         auto: input.auto,
         overflow: input.overflow,
+        strategy: input.strategy,
       })
       if (flags.experimentalEventSystem) {
         yield* events.publish(SessionEvent.Compaction.Started, {

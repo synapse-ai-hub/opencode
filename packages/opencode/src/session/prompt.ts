@@ -1206,6 +1206,7 @@ export const layer = Layer.effect(
               sessionID,
               auto: task.auto,
               overflow: task.overflow,
+              strategy: task.strategy,
             })
             if (result === "stop") break
             continue
@@ -1216,7 +1217,15 @@ export const layer = Layer.effect(
             lastFinished.summary !== true &&
             (yield* compaction.isOverflow({ tokens: lastFinished.tokens, model }))
           ) {
-            yield* compaction.create({ sessionID, agent: lastUser.agent, model: lastUser.model, auto: true })
+            const cfg = yield* config.get()
+            const strategy = cfg.compaction?.strategy ?? "original"
+            yield* compaction.create({
+              sessionID,
+              agent: lastUser.agent,
+              model: lastUser.model,
+              auto: true,
+              strategy,
+            })
             continue
           }
 
@@ -1364,12 +1373,15 @@ export const layer = Layer.effect(
 
             if (result === "stop") return "break" as const
             if (result === "compact") {
+              const cfg = yield* config.get()
+              const strategy = cfg.compaction?.strategy ?? "original"
               yield* compaction.create({
                 sessionID,
                 agent: lastUser.agent,
                 model: lastUser.model,
                 auto: true,
                 overflow: !handle.message.finish,
+                strategy,
               })
             }
             return "continue" as const

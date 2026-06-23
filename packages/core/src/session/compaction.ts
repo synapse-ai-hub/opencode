@@ -172,6 +172,22 @@ export const buildPrompt = (input: { readonly previousSummary?: string; readonly
     ...input.context,
   ].join("\n\n")
 
+const COD_TEMPLATE = `Return ONLY a valid JSON object with the following exact keys. No markdown, no extra text.
+
+{
+  "KeyPoints": "semicolon-separated list of key entities, decisions, errors, technical details, and patterns found in the conversation history above",
+  "DenserSummary": "A single dense paragraph of 80-120 words covering all essential context. Every sentence adds information — no filler, no fluff. Preserve exact file paths, commands, error messages, and identifiers."
+}`
+
+export const buildPromptCoD = (input: { readonly previousSummary?: string; readonly context: readonly string[] }) =>
+  [
+    input.previousSummary
+      ? `Update and densify the summary below. Preserve all still-true information, remove stale details, merge in new facts, and make the output denser with each update.\n<previous-summary>\n${input.previousSummary}\n</previous-summary>`
+      : "Create a dense, information-rich summary from the conversation history below. Include all key entities, decisions, progress, blockers, and relevant technical details.",
+    COD_TEMPLATE,
+    ...input.context,
+  ].join("\n\n")
+
 export const make = (dependencies: Dependencies) => {
   const config = settings(dependencies.config)
   const compactAfterOverflow = Effect.fn("SessionCompaction.compactAfterOverflow")(function* (input: Input) {

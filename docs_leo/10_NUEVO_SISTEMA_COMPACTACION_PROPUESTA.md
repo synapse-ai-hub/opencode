@@ -2,6 +2,68 @@
 
 > Basado en el análisis del código actual de opencode y la experiencia 
 > del sistema de token limit en ProspectingAgent.
+>
+> **Estado**: Parcialmente implementado. Ver sección "Implementado" al final.
+
+---
+
+## Implementado (23/06/2026)
+
+| Archivo | Cambio |
+|---------|--------|
+| `packages/opencode/src/session/overflow.ts` | `isOverflow()` ahora acepta `trigger_threshold` (porcentaje del context window). Si no está configurado, mantiene el comportamiento anterior. |
+| `packages/core/src/v1/config/config.ts` | Agregado `trigger_threshold`, `strategy`, `options`, `truncate_percent` al schema V1 |
+| `packages/core/src/config/compaction.ts` | Agregado `triggerThreshold`, `strategy`, `options`, `truncatePercent` al schema V2 |
+| `packages/core/src/v1/session.ts` | Agregado `strategy` al `CompactionPart` schema |
+| `packages/opencode/src/session/compaction.ts` | Agregada función `truncate()` que calcula el 30% inicial a cortar. `create()` y `process()` ahora aceptan `strategy`. Si `strategy === "truncate"`, corta sin llamar al LLM. |
+| `packages/opencode/src/session/message-v2.ts` | `filterCompacted()` ahora maneja `strategy === "truncate"`: mantiene mensajes desde `tail_start_id` sin reordenamiento de summary. |
+| `packages/opencode/src/session/prompt.ts` | El loop de overflow ahora lee `strategy` de la config y lo pasa a `compaction.create()`. |
+
+### Config `opencode.json`
+
+```json
+{
+  "compaction": {
+    "trigger_threshold": 0.85,
+    "strategy": "original",
+    "options": ["cod", "truncate", "original"],
+    "truncate_percent": 0.3
+  }
+}
+```
+
+### Estrategias disponibles
+
+| Estrategia | Comportamiento |
+|------------|---------------|
+| `"original"` | Compaction actual con template fijo (default, backward compatible) |
+| `"truncate"` | Corta `truncate_percent` del inicio de la conversación, mantiene el final intacto |
+| `"cod"` | Chain of Density (pendiente de implementar el prompt CoD) |
+| `"ask"` | Preguntar al usuario (pendiente de implementar el modal/UX) |
+
+### Archivos nuevos creados
+
+- `packages/opencode/src/agent/prompt/compaction-cod.txt` — System prompt CoD (inglés, JSON output)
+- `packages/core/src/session/compaction.ts` — Agregado `buildPromptCoD()` + `COD_TEMPLATE`
+
+### Estrategias (todas implementadas)
+
+| Estrategia | Prompt | Template | LLM call |
+|------------|--------|----------|----------|
+| `"original"` | `compaction.txt` | `buildPrompt()` + `SUMMARY_TEMPLATE` | Sí |
+| `"truncate"` | N/A | N/A | No (solo corta) |
+| `"cod"` | `compaction-cod.txt` | `buildPromptCoD()` + `COD_TEMPLATE` | Sí (una llamada, output JSON denso) |
+| `"ask"` | Pendiente | Pendiente | Pendiente |
+
+### Documentación actualizada
+
+- `packages/web/src/content/docs/config.mdx` — Sección Compaction en inglés
+- `packages/web/src/content/docs/es/config.mdx` — Sección Compactación en español
+
+### Pendiente para próxima sesión
+
+- [ ] Implementar sistema "ask" para preguntar al usuario via Question tool o TUI
+- [ ] Traducir la documentación a otros idiomas (fr, de, ja, etc.)
 
 ---
 

@@ -490,13 +490,27 @@ Puede controlar el comportamiento de compactación del contexto a través de la 
   "$schema": "https://opencode.ai/config.json",
   "compaction": {
     "auto": true,
-    "prune": false
+    "prune": false,
+    "reserved": 10000,
+    "trigger_threshold": 0.85,
+    "strategy": "original",
+    "options": ["cod", "truncate", "original"],
+    "truncate_percent": 0.3
   }
 }
 ```
 
 - `auto`: compacta automáticamente la sesión cuando el contexto está lleno (predeterminado: `true`).
-- `prune`: elimina las salidas de herramientas antiguas para guardar tokens (predeterminado: `false`).
+- `prune`: elimina salidas de herramientas antiguas para ahorrar tokens (predeterminado: `false`).
+- `reserved`: búfer de tokens para compactación. Deja suficiente ventana para evitar desbordamiento durante la compactación.
+- `trigger_threshold`: fracción del context window que dispara la compactación (ej: `0.8` = 80%, `0.95` = 95%). Cuando se configura, reemplaza la lógica del búfer fijo. Funciona en todos los modelos independientemente del tamaño del context window.
+- `strategy`: estrategia de compactación a usar. Valores soportados:
+  - `"original"` (predeterminado) - Resumen basado en plantilla fija (Goal, Constraints, Progress, etc.).
+  - `"cod"` - Chain of Density. Produce un JSON denso con puntos clave y un resumen conciso. Preserva más contexto que la plantilla original.
+  - `"truncate"` - Sin resumen. Elimina `truncate_percent` de los turns más antiguos desde el inicio. Es la opción más rápida, mantiene el contexto reciente intacto.
+  - `"ask"` - Pregunta al usuario qué acción tomar cuando se alcanza el límite (requiere soporte de frontend).
+- `options`: opciones disponibles para el usuario cuando `strategy` es `"ask"`. Predeterminado: `["cod", "truncate", "original"]`.
+- `truncate_percent`: fracción de la conversación a eliminar desde el principio cuando se usa la estrategia `"truncate"` (predeterminado: `0.3` = 30%). Cada vez que se ejecuta, elimina este porcentaje de los mensajes más antiguos.
 
 ---
 
