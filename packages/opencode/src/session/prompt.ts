@@ -60,6 +60,7 @@ import { SessionTable } from "@opencode-ai/core/session/sql"
 import { SessionReminders } from "./reminders"
 import { SessionTools } from "./tools"
 import { LLMEvent } from "@opencode-ai/llm"
+import { processAuditOutput } from "../agent/auditor-handler"
 
 // @ts-ignore
 globalThis.AI_SDK_LOG_WARNINGS = false

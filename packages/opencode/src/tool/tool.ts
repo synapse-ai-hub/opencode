@@ -133,9 +133,25 @@ function wrap<Parameters extends Schema.Decoder<unknown>, Result extends Metadat
           }
           const agent = yield* agents.get(ctx.agent)
           const truncated = yield* truncate.output(result.output, {}, agent)
+          const outputContent = truncated.content
+          // Wrap output in unified contract: { status, message, data, usage }
+          // The LLM only generates the "data" portion; the code wraps it.
+          // If the output is valid JSON, parse it directly into data.
+          // If it's plain text, data is the raw string.
+          let dataValue: unknown
+          try {
+            dataValue = JSON.parse(outputContent)
+          } catch {
+            dataValue = outputContent
+          }
+          const contractOutput = JSON.stringify({
+            status: "success",
+            message: result.title || "Tool executed",
+            data: dataValue,
+          })
           return {
             ...result,
-            output: truncated.content,
+            output: contractOutput,
             metadata: {
               ...result.metadata,
               truncated: truncated.truncated,

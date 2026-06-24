@@ -10,10 +10,14 @@ import { Agent } from "../agent/agent"
 import { deriveSubagentSessionPermission } from "../agent/subagent-permissions"
 import type { SessionPrompt } from "../session/prompt"
 import { Config } from "@/config/config"
-import { Effect, Exit, Schema, Scope } from "effect"
+import { Effect, Exit, Option, Schema, Scope } from "effect"
 import { EffectBridge } from "@/effect/bridge"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { Database } from "@opencode-ai/core/database/database"
+import FIDELITY_PROMPT from "../session/prompt/fidelity.txt"
+import { Provider } from "@/provider/provider"
+import { Question } from "../question"
+import { generateText } from "ai"
 
 export interface TaskPromptOps {
   cancel(sessionID: SessionID): Effect.Effect<void>
@@ -88,6 +92,8 @@ export const TaskTool = Tool.define(
     const scope = yield* Scope.Scope
     const flags = yield* RuntimeFlags.Service
     const database = yield* Database.Service
+    const provider = yield* Provider.Service
+    const question = yield* Question.Service
 
     const run = Effect.fn("TaskTool.execute")(function* (
       params: Schema.Schema.Type<typeof Parameters>,
@@ -117,6 +123,76 @@ export const TaskTool = Tool.define(
       if (!next) {
         return yield* Effect.fail(new Error(`Unknown agent type: ${params.subagent_type} is not a valid agent type`))
       }
+
+      // ── Prompt Fidelity Gate ──────────────────────────────────
+      // Verify the delegated task matches the user's original request
+      if (!ctx.extra?.bypassAgentCheck && ctx.messages.length > 0) {
+        const callingAgent = yield* agent.get(ctx.agent).pipe(Effect.option)
+        if (Option.isSome(callingAgent) && callingAgent.value.model) {
+          const mdl = callingAgent.value.model
+          const language = yield* provider.getLanguage(
+            yield* provider.getModel(mdl.providerID, mdl.modelID),
+          )
+          const userMsg = ctx.messages.findLast((m) => m.info.role === "user")
+          const userText = userMsg
+            ? userMsg.parts.filter((p) => p.type === "text").map((p: any) => p.text).join("\n")
+            : ""
+
+          if (userText) {
+            const verifyResult = yield* Effect.tryPromise(() =>
+              generateText({
+                model: language,
+                system: FIDELITY_PROMPT,
+                prompt: [
+                  "=== USER'S ORIGINAL REQUEST ===",
+                  userText,
+                  "",
+                  "=== DELEGATED TASK ===",
+                  params.prompt,
+                  "",
+                  "=== CHECK ===",
+                  "Does the delegated task match EXACTLY what the user asked?",
+                  "Is the agent adding anything the user didn't request?",
+                  "Is the agent trying to improve/optimize anything not asked for?",
+                  "Are the tasks limited to the user's exact logic and scope?",
+                  "Does the agent have enough context to execute this?",
+                  "",
+                  "Respond with YES only if ALL checks pass. Otherwise NO with the reason.",
+                ].join("\n"),
+                temperature: 0,
+                maxTokens: 1000,
+              }),
+            ).pipe(Effect.option)
+
+            const verifyText = Option.isSome(verifyResult) ? verifyResult.value.text.trim() : ""
+            if (verifyText.startsWith("NO")) {
+              const reason = verifyText.length > 3 ? verifyText.substring(3).trim() : ""
+              const answers = yield* question.ask({
+                sessionID: ctx.sessionID,
+                questions: [{
+                  header: "Fidelity Check",
+                  question: [
+                    "The agent wants to delegate a task that may not match your request.",
+                    "", "Your original request:", userText,
+                    "", "Proposed delegated task:",
+                    params.prompt,
+                    "", "Is this correct? If not, describe what should be done instead:",
+                  ].join("\n"),
+                }],
+              })
+              if (answers[0]?.length) {
+                const userFix = answers[0].join(", ")
+                if (userFix.toLowerCase().includes("cancel") || userFix.toLowerCase().includes("no")) {
+                  return yield* Effect.fail(new Error("Task cancelled by user: fidelity check failed"))
+                }
+                // Replace the prompt with user's correction for downstream usage
+                ;(params as any).prompt = userFix
+              }
+            }
+          }
+        }
+      }
+      // ── End Prompt Fidelity Gate ──────────────────────────────
 
       const session = params.task_id
         ? yield* sessions.get(SessionID.make(params.task_id)).pipe(Effect.catchCause(() => Effect.succeed(undefined)))
