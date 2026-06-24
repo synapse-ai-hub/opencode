@@ -166,7 +166,7 @@ export const Info = Schema.Struct({
           "Fraction of context window that triggers compaction (e.g. 0.8 = 80%). When set, overrides the reserved buffer logic. (default: 0.8)",
       }),
       strategy: Schema.optional(
-        Schema.Literal("ask", "cod", "truncate", "original"),
+        Schema.Literals(["ask", "cod", "truncate", "original"]),
       ).annotate({
         description:
           'Compaction strategy: "ask" (prompt user), "cod" (chain-of-density), "truncate" (cut beginning), "original" (default template). (default: "original")',

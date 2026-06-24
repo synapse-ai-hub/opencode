@@ -7,7 +7,7 @@ export class Keep extends Schema.Class<Keep>("ConfigV2.Compaction.Keep")({
   tokens: NonNegativeInt.pipe(Schema.optional),
 }) {}
 
-const Strategy = Schema.Literal("ask", "cod", "truncate", "original")
+const Strategy = Schema.Literals(["ask", "cod", "truncate", "original"])
 
 export class Info extends Schema.Class<Info>("ConfigV2.Compaction")({
   auto: Schema.Boolean.pipe(Schema.optional),
