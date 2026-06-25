@@ -37,44 +37,6 @@ This applies to ALL documents (markdown, text files, specifications), NOT to sou
 
 ---
 
-## Unified Response Contract
-
-Every endpoint, function, tool, or agent MUST use the unified response contract.
-
-**Contract location**: `backend/utils/contract.py`
-
-**Required import**:
-```python
-from backend.utils.contract import (
-    ContractResponse,
-    UsageReport,
-    make_error_response,
-    make_success_response,
-    validate_response,
-    zero_usage,
-)
-```
-
-**Usage**:
-```python
-# Success
-return validate_response(make_success_response(
-    message="Operation completed",
-    data={"result": value},
-    usage={"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150, "total_time": 1.23}
-))
-
-# Error
-return validate_response(make_error_response(
-    message=str(e),
-    usage=zero_usage()
-))
-```
-
-**If `backend/utils/contract.py` does not exist in the current project**, the agent MUST report it as an error. Do NOT invent an alternative contract.
-
----
-
 ## Code Conventions
 
 | Language | Convention |

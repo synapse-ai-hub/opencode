@@ -27,6 +27,10 @@ target
 .direnv/
 
 # Local dev files
+docs_leo/*.exe
+docs_leo/opencode_backup*
+.config/backup_opencode_original/
+
 opencode-dev
 UPCOMING_CHANGELOG.md
 logs/
