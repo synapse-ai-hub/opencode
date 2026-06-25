@@ -227,3 +227,17 @@ Patterns comunes:
 - El build para Windows usa `win32` como target
 - Los paths en Windows se normalizan con `FSUtil.normalizePath()`
 - El binario compilado funciona como cualquier `.exe`
+
+### Reemplazar el binario global de npm
+
+Si instalaste opencode globalmente con `npm install -g opencode-ai`, el comando `opencode` en la terminal resuelve a través de `%APPDATA%\npm\opencode.ps1`, que ejecuta:
+
+```
+%APPDATA%\npm\node_modules\opencode-ai\bin\opencode.exe
+```
+
+Para que tu build modificado se use al escribir `opencode`, copiá el binario compilado encima de ese archivo:
+
+```powershell
+copy /y D:\opencode\packages\opencode\dist\opencode-windows-x64\bin\opencode.exe "$env:APPDATA\npm\node_modules\opencode-ai\bin\opencode.exe"
+```

@@ -86,10 +86,9 @@ D:\opencode\packages\opencode\dist\win32-x64\bin\opencode.exe
 
 ## Cómo usarlo
 
-**Opción A — Reemplazar el instalado:**
+**Opción A — Reemplazar el global de npm (para que `opencode` en terminal use el build):**
 ```powershell
-# Copiar al directorio donde está el opencode original
-copy D:\opencode\packages\opencode\dist\win32-x64\bin\opencode.exe C:\ruta\donde\este\instalado\
+copy /y D:\opencode\packages\opencode\dist\opencode-windows-x64\bin\opencode.exe "$env:APPDATA\npm\node_modules\opencode-ai\bin\opencode.exe"
 ```
 
 **Opción B — Ejecutar directo desde el dist:**

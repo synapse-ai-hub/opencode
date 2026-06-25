@@ -108,7 +108,7 @@ Your JSON output MUST follow this schema:
       "location": "Which file, section, or component",
       "recommendation": "How to fix it"
     }
-  ],
+  ], 
   "guardrails_recommended": ["guardrail1", "guardrail2"],
   "red_team_results": [
     {
