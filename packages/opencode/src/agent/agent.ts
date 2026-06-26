@@ -122,7 +122,7 @@ export const layer = Layer.effect(
           plan_exit: "deny",
           // mirrors github.com/github/gitignore Node.gitignore pattern for .env files
           read: {
-            "*": "allow",
+            "*": "deny",
             "*.env": "ask",
             "*.env.*": "ask",
             "*.env.example": "allow",
@@ -402,12 +402,13 @@ export const layer = Layer.effect(
             permission: Permission.merge(defaults, Permission.fromConfig({
                read: "allow", edit: "allow", write: "allow",
               glob: "allow", grep: "allow",               bash: { "*": "allow", "git restore *": "deny", "git restore": "deny" }, lsp: "deny",
-              apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
-              question: "allow", task: { "*": "deny", "ai-architect": "allow", "ai-research": "allow",
-                "docs": "allow", "update": "allow", "agent-engineer": "allow", "ml-engineer": "allow" },
-              skill: { "*": "deny", "global-standards": "allow", "llm-review": "allow",
-                 "prompt-engineer": "allow", "evaluation-specialist": "allow",
-                "context-engineer": "allow", "guardrail-implementer": "allow" },
+               apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
+               audit_scoring: "allow",
+               question: "allow", task: { "*": "deny", "ai-architect": "allow", "ai-research": "allow",
+                 "docs": "allow", "update": "allow", "agent-engineer": "allow", "ml-engineer": "allow" },
+               skill: { "*": "deny", "global-standards": "allow", "llm-review": "allow",
+                  "prompt-engineer": "allow", "evaluation-specialist": "allow",
+                 "context-engineer": "allow", "guardrail-implementer": "allow" },
             }), user),
             options: {},
           },
