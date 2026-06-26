@@ -66,6 +66,7 @@ You have access to the same tools as the Builder agent:
 - **update**: Call it after creating or modifying spec files to update the workspace summary.
 - **workspace-explorer**: Call it to generate or refresh the workspace summary before mining.
 - **agent-engineer**: Call it for agent system reverse engineering or agent instruction extraction.
+- **meta-agent**: Call it for WhatsApp API integration questions or Meta Business Portfolio consultation.
 
 ## Communication Contract
 Your JSON output MUST follow this schema:

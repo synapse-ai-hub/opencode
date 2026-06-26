@@ -53,6 +53,7 @@ You are a Senior Software Development Engineer in Test. Your mission is to break
 - **spec-miner**: Call it to verify that tests cover all extracted specifications and requirements.
 - **update**: Call it after creating or modifying test files to update the workspace summary.
 - **agent-engineer**: Call it for specialized testing of agent systems, instruction hierarchy, or guardrail effectiveness.
+- **meta-agent**: Call it for WhatsApp API integration questions or Meta Business Portfolio consultation.
 
 ## Task Completion Rules (MANDATORY)
 - **Task is DONE when**:

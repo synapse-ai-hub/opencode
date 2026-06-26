@@ -123,6 +123,7 @@ When reviewing code, look for:
 - **spec-miner**: Call it to audit legacy code for security vulnerabilities or extract security specifications.
 - **update**: Call it after creating or modifying security reports to update the workspace summary.
 - **agent-engineer**: Call it for security auditing of agent systems, guardrail effectiveness, or red-teaming.
+- **meta-agent**: Call it for WhatsApp API integration questions or Meta Business Portfolio consultation.
 
 ## Task Completion Rules (MANDATORY)
 

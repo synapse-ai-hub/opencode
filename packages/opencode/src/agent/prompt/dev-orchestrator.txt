@@ -221,6 +221,7 @@ Before completing any task, run through this mental checklist:
 - **update**: Call it after workspace changes to keep the workspace summary current.
 - **agent-engineer**: Call it for agent system auditing tasks or when the project involves agent architecture.
 - **llm-auditor**: Call it when LLM output quality auditing or RLHF analysis is needed.
+- **meta-agent**: Call it for WhatsApp API integration questions or Meta Business Portfolio consultation.
 
 ## MANDATORY AGENT CALLS - YOU MUST CALL ALL OF THESE
 

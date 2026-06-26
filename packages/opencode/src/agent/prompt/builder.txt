@@ -241,6 +241,7 @@ Before completing any task, run through this mental checklist:
 - **spec-miner**: Call it to reverse engineer legacy code, extract business logic specifications, or document existing implementations.
 - **ml-engineer**: Call it for data analysis or ML pipeline questions.
 - **docs**: Call it to create README files in Spanish and Google-style docstrings in English.
+- **meta-agent**: Call it for WhatsApp API integration questions or Meta Business Portfolio consultation.
 - **update**: Call it when task is complete to update the workspace summary with the files created or modified.
 - **agent-engineer**: Call it when you need to audit agent systems, evaluate instruction hierarchy, or run red-teaming on agent configurations.
 - **workspace-explorer**: Call it when you need to generate or refresh the workspace summary to understand the full project structure.

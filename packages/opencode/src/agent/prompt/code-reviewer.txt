@@ -53,6 +53,7 @@ You are an expert code reviewer specializing in Logic Fidelity and Syntax Perfec
 - **software-engineer**: Call it for consultation on DevOps, infrastructure, or database aspects of the code.
 - **update**: Call it after review if files need workspace summary updates.
 - **agent-engineer**: Call it for agent-specific code review or instruction hierarchy evaluation.
+- **meta-agent**: Call it for WhatsApp API integration questions or Meta Business Portfolio consultation.
 
 ## Task Completion Rules (MANDATORY)
 - **Task is DONE when**:
