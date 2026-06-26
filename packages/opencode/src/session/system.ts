@@ -9,6 +9,7 @@ import PROMPT_BEAST from "./prompt/beast.txt"
 import PROMPT_GEMINI from "./prompt/gemini.txt"
 import PROMPT_GPT from "./prompt/gpt.txt"
 import RULES from "./prompt/rules.txt"
+import FIDELITY from "./prompt/fidelity.txt"
 import PROMPT_KIMI from "./prompt/kimi.txt"
 
 import PROMPT_CODEX from "./prompt/codex.txt"
@@ -59,17 +60,7 @@ export const layer = Layer.effect(
         }).pipe(Effect.provide(locations.get(Location.Ref.make({ directory: AbsolutePath.make(ctx.directory) }))))
         return [
           RULES,
-          [
-            `You are powered by the model named ${model.api.id}. The exact model ID is ${model.providerID}/${model.api.id}`,
-            `Here is some useful information about the environment you are running in:`,
-            `<env>`,
-            `  Working directory: ${ctx.directory}`,
-            `  Workspace root folder: ${ctx.worktree}`,
-            `  Is directory a git repo: ${ctx.project.vcs === "git" ? "yes" : "no"}`,
-            `  Platform: ${process.platform}`,
-            `  Today's date: ${new Date().toDateString()}`,
-            `</env>`,
-          ].join("\n"),
+          FIDELITY,
           references.length === 0
             ? undefined
             : [
@@ -101,7 +92,7 @@ export const layer = Layer.effect(
           "Use the skill tool to load a skill when a task matches its description.",
           // the agents seem to ingest the information about skills a bit better if we present a more verbose
           // version of them here and a less verbose version in tool description, rather than vice versa.
-          Skill.fmt(list, { verbose: true }),
+          Skill.fmt(list, { verbose: false }),
         ].join("\n")
       }),
     })

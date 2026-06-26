@@ -21,7 +21,7 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
 
     Flock.withLock(lock, () => readJson<Record<string, unknown>>(file))
       .then((x) => {
-        setStore(x)
+        setStore(x ?? {})
       })
       .catch((error) => {
         console.error("Failed to read KV state", { error })
@@ -53,9 +53,21 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
       },
       set(key: string, value: any) {
         setStore(key, value)
-        const snapshot = structuredClone(unwrap(store))
+        // Get resolved value from store (setStore resolves function updaters)
+        const resolved = store[key]
         write = write
-          .then(() => Flock.withLock(lock, () => writeJsonAtomic(file, snapshot)))
+          .then(() => Flock.withLock(lock, async () => {
+            // Read current file state to avoid overwriting external edits
+            let data: Record<string, unknown>
+            try {
+              data = await readJson<Record<string, unknown>>(file)
+            } catch {
+              data = {}
+            }
+            // Only update the changed key with the resolved value
+            data[key] = resolved
+            return writeJsonAtomic(file, data)
+          }))
           .catch((error) => {
             console.error("Failed to write KV state", { error })
           })

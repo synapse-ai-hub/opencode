@@ -22,6 +22,7 @@
 | `09_COMPACTACION_ACTUAL.md` | Cómo funciona el sistema de compaction HOY |
 | `10_NUEVO_SISTEMA_COMPACTACION_PROPUESTA.md` | Propuesta: CoD + sliding window + preguntar usuario |
 | `11_INSTALACION_Y_BUILD.md` | Cómo instalar, compilar y desarrollar |
+| `12_KV_STORE_Y_AUTOUPDATE.md` | KV Store (scrollbar bug), auto-update (exe pisado), paths reales en Windows |
 
 ---
 
