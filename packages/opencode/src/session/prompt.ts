@@ -1147,6 +1147,24 @@ export const layer = Layer.effect(
             Effect.provideService(Database.Service, database),
           )
 
+          const ctxLimit = session.metadata?.context_limit
+          if (typeof ctxLimit === "number" && ctxLimit >= 0) {
+            let userCount = 0
+            let assistantCount = 0
+            const limited: typeof msgs = []
+            for (let i = msgs.length - 1; i >= 0; i--) {
+              const msg = msgs[i]
+              if (msg.info.role === "user" && userCount < ctxLimit) {
+                limited.unshift(msg)
+                userCount++
+              } else if (msg.info.role === "assistant" && assistantCount < ctxLimit) {
+                limited.unshift(msg)
+                assistantCount++
+              }
+            }
+            msgs = limited
+          }
+
           const { user: lastUser, assistant: lastAssistant, finished: lastFinished, tasks } = MessageV2.latest(msgs)
 
           if (!lastUser) throw new Error("No user message found in stream. This should never happen.")

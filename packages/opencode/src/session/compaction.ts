@@ -43,12 +43,6 @@ const PRUNE_PROTECTED_TOOLS = ["skill"]
 const DEFAULT_TAIL_TURNS = 2
 const MIN_PRESERVE_RECENT_TOKENS = 2_000
 const MAX_PRESERVE_RECENT_TOKENS = 8_000
-const FAKE_MODEL = {
-  limit: { context: 999_999_999, output: 0 },
-  api: { npm: "", id: "", url: "" },
-  providerID: "",
-  id: "",
-} as unknown as Provider.Model
 type Turn = {
   start: number
   end: number
@@ -305,65 +299,6 @@ export const layer = Layer.effect(
       }
     })
 
-    const truncate = Effect.fn("SessionCompaction.truncate")(function* (input: {
-      messages: SessionV1.WithParts[]
-      sessionID: SessionID
-      percent?: number
-    }) {
-      const cfg = yield* config.get()
-      const pct = input.percent ?? cfg.compaction?.truncate_percent ?? 0.3
-      if (pct <= 0 || pct >= 1) return { tail_start_id: undefined }
-
-      const totalTokens = yield* estimate({ messages: input.messages, model: FAKE_MODEL })
-      if (totalTokens === 0) return { tail_start_id: undefined }
-
-      const targetTokens = Math.floor(totalTokens * pct)
-      let accumulated = 0
-      let cutIndex = 0
-
-      for (let i = 0; i < input.messages.length; i++) {
-        const msg = input.messages[i]
-        const tokens = yield* estimate({ messages: [msg], model: FAKE_MODEL })
-        accumulated += tokens
-        if (accumulated >= targetTokens) {
-          cutIndex = i + 1
-          break
-        }
-      }
-
-      // Si no se encontró punto de corte, no truncar
-      if (cutIndex <= 0 || cutIndex > input.messages.length) return { tail_start_id: undefined }
-      if (cutIndex >= input.messages.length) cutIndex = input.messages.length - 1
-
-      let firstKept = input.messages[cutIndex]
-      if (!firstKept) return { tail_start_id: undefined }
-
-      // cutIndex can point to any role; advance to the next user message
-      if (firstKept.info.role !== "user") {
-        let found: (typeof input.messages)[number] | undefined
-        for (let j = cutIndex; j < input.messages.length; j++) {
-          if (input.messages[j].info.role === "user") {
-            found = input.messages[j]
-            break
-          }
-        }
-        if (!found) return { tail_start_id: undefined }
-        firstKept = found
-      }
-
-      yield* Effect.logInfo("truncate", {
-        sessionID: input.sessionID,
-        percent: pct,
-        totalTokens,
-        targetTokens,
-        accumulated,
-        cutIndex,
-        tail_start_id: firstKept.info.id,
-      })
-
-      return { tail_start_id: firstKept.info.id }
-    })
-
     const processCompaction = Effect.fn("SessionCompaction.process")(function* (input: {
       parentID: MessageID
       messages: SessionV1.WithParts[]
@@ -408,23 +343,6 @@ export const layer = Layer.effect(
 
       const cfg = yield* config.get()
       const strategy = input.strategy ?? compactionPart?.strategy ?? cfg.compaction?.strategy ?? "original"
-
-      // Truncate strategy: cut the beginning, no LLM call needed
-      if (strategy === "truncate") {
-        const result = yield* truncate({
-          messages,
-          sessionID: input.sessionID,
-          percent: cfg.compaction?.truncate_percent,
-        })
-        if (result.tail_start_id && compactionPart) {
-          yield* session.updatePart({
-            ...compactionPart,
-            tail_start_id: result.tail_start_id,
-          })
-        }
-        yield* events.publish(Event.Compacted, { sessionID: input.sessionID })
-        return "continue"
-      }
 
       const agent = yield* agents.get("compaction")
       // For CoD strategy, override the agent's prompt with the CoD prompt

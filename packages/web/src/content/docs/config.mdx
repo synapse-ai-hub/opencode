@@ -733,8 +733,7 @@ You can control context compaction behavior through the `compaction` option.
     "reserved": 10000,
     "trigger_threshold": 0.85,
     "strategy": "original",
-    "options": ["cod", "truncate", "original"],
-    "truncate_percent": 0.3
+    "options": ["cod", "original"],
   }
 }
 ```
@@ -746,10 +745,8 @@ You can control context compaction behavior through the `compaction` option.
 - `strategy` - Compaction strategy to use. Supported values:
   - `"original"` (default) - Template-based summarization using a fixed structure (Goal, Constraints, Progress, etc.).
   - `"cod"` - Chain of Density summarization. Produces a dense JSON output with key points and a concise summary. Preserves more context than the original template.
-  - `"truncate"` - No summarization. Drops `truncate_percent` of the oldest conversation turns from the beginning. Fastest option, keeps the most recent context verbatim.
   - `"ask"` - Prompt the user to choose an action when the limit is reached (requires frontend support).
-- `options` - Available user choices when `strategy` is `"ask"`. Default: `["cod", "truncate", "original"]`.
-- `truncate_percent` - Fraction of the conversation to drop from the beginning when using `"truncate"` strategy (default: `0.3` = 30%). Each time truncation runs, it removes this percentage of the oldest messages, progressively freeing up space.
+- `options` - Available user choices when `strategy` is `"ask"`. Default: `["cod", "original"]`.
 
 ---
 

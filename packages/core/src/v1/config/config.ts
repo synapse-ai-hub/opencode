@@ -166,20 +166,16 @@ export const Info = Schema.Struct({
           "Fraction of context window that triggers compaction (e.g. 0.8 = 80%). When set, overrides the reserved buffer logic. (default: 0.8)",
       }),
       strategy: Schema.optional(
-        Schema.Literals(["ask", "cod", "truncate", "original"]),
+        Schema.Literals(["ask", "cod", "original"]),
       ).annotate({
         description:
-          'Compaction strategy: "ask" (prompt user), "cod" (chain-of-density), "truncate" (cut beginning), "original" (default template). (default: "original")',
+          'Compaction strategy: "ask" (prompt user), "cod" (chain-of-density), "original" (default template). (default: "original")',
       }),
       options: Schema.optional(
         Schema.mutable(Schema.Array(Schema.String)),
       ).annotate({
         description:
-          'Available user options when strategy is "ask". Default: ["cod", "truncate", "original"]',
-      }),
-      truncate_percent: Schema.optional(Schema.Finite).annotate({
-        description:
-          "Fraction of conversation to drop from the beginning when truncating (e.g. 0.3 = 30%). (default: 0.3)",
+          'Available user options when strategy is "ask". Default: ["cod", "original"]',
       }),
     }),
   ),

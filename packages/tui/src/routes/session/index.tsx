@@ -47,6 +47,7 @@ import { openEditor } from "../../editor"
 import { useDialog } from "../../ui/dialog"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { DialogSelect, type DialogSelectOption } from "../../ui/dialog-select"
+import { DialogPrompt } from "../../ui/dialog-prompt"
 import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
 import type { PromptInfo } from "../../component/prompt/history"
@@ -573,7 +574,6 @@ export function Session() {
         const options: DialogSelectOption<string>[] = [
           { title: "Original", value: "original", description: "Standard summarization via LLM" },
           { title: "Chain of Density", value: "cod", description: "Dense structured JSON summary" },
-          { title: "Truncate", value: "truncate", description: "Cut beginning of conversation (no LLM call)" },
         ]
         dialog.replace(() => (
           <DialogSelect
@@ -588,6 +588,33 @@ export function Session() {
               })
               dialog.clear()
             }}
+          />
+        ))
+      },
+    },
+    {
+      title: "Set context size",
+      value: "session.context",
+      category: "Session",
+      slash: {
+        name: "context",
+      },
+      run: () => {
+        dialog.replace(() => (
+          <DialogPrompt
+            title="Context size"
+            description={() => "Number of user/assistant turns to load (-1 for all)"}
+            value={String(session()?.metadata?.context_limit ?? -1)}
+            onConfirm={(value) => {
+              const num = parseInt(value, 10)
+              if (isNaN(num)) return
+              void sdk.client.session.update({
+                sessionID: route.sessionID,
+                metadata: { context_limit: num },
+              })
+              dialog.clear()
+            }}
+            onCancel={() => dialog.clear()}
           />
         ))
       },

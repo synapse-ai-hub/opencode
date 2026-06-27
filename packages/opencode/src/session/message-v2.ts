@@ -542,12 +542,6 @@ export function filterCompacted(msgs: Iterable<WithParts>) {
       if (msg.info.id === retain) break
       continue
     }
-    if (msg.info.role === "user" && msg.parts.some((p): p is CompactionPart => p.type === "compaction" && p.strategy === "truncate" && p.tail_start_id !== undefined)) {
-      const part = msg.parts.find((p): p is CompactionPart => p.type === "compaction")!
-      retain = part.tail_start_id!
-      if (msg.info.id === retain) break
-      continue
-    }
     if (msg.info.role === "user" && completed.has(msg.info.id)) {
       const part = msg.parts.find((item): item is CompactionPart => item.type === "compaction")
       if (!part) continue
@@ -571,17 +565,6 @@ export function filterCompacted(msgs: Iterable<WithParts>) {
   const part = compaction?.parts.find(
     (item): item is CompactionPart => item.type === "compaction" && item.tail_start_id !== undefined,
   )
-  const isTruncate = part?.strategy === "truncate"
-  if (isTruncate && part?.tail_start_id) {
-    const tailIndex = result.findIndex((msg) => msg.info.id === part.tail_start_id)
-    if (tailIndex >= 0) {
-      return [
-        ...result.slice(tailIndex, compactionIndex),
-        ...result.slice(compactionIndex + 1),
-      ]
-    }
-    return result
-  }
   const summaryIndex = compaction
     ? result.findIndex(
         (msg, index) =>

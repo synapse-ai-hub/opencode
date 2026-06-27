@@ -7,7 +7,7 @@ export class Keep extends Schema.Class<Keep>("ConfigV2.Compaction.Keep")({
   tokens: NonNegativeInt.pipe(Schema.optional),
 }) {}
 
-const Strategy = Schema.Literals(["ask", "cod", "truncate", "original"])
+const Strategy = Schema.Literals(["ask", "cod", "original"])
 
 export class Info extends Schema.Class<Info>("ConfigV2.Compaction")({
   auto: Schema.Boolean.pipe(Schema.optional),
@@ -20,15 +20,11 @@ export class Info extends Schema.Class<Info>("ConfigV2.Compaction")({
   }),
   strategy: Schema.optional(Strategy).annotate({
     description:
-      'Compaction strategy: "ask", "cod", "truncate", or "original".',
+      'Compaction strategy: "ask", "cod", or "original".',
   }),
   options: Schema.optional(Schema.mutable(Schema.Array(Schema.String))).annotate({
     description:
       'Available user options when strategy is "ask".',
-  }),
-  truncatePercent: Schema.optional(Schema.Finite).annotate({
-    description:
-      "Fraction of conversation to drop from the beginning when truncating. (default: 0.3)",
   }),
 }) {}
 export type Strategy = Schema.Schema.Type<typeof Strategy>

@@ -49,3 +49,96 @@ This applies to ALL documents (markdown, text files, specifications), NOT to sou
 
 ---
 
+## The 7 Fidelity Checks — ALL Must Pass
+
+Every agent MUST apply these 7 checks before executing ANY user request. Do not skip any check.
+
+### 1. EXACT MATCH
+Does your implementation match EXACTLY what the user requested? Any deviation is a FAIL.
+- The user's request must be preserved verbatim in your understanding
+- Paraphrasing that changes meaning or adds specifics is a FAIL
+
+### 2. NO INVENTIONS
+Did you add anything the user never mentioned?
+- Features, functionality, or capabilities not requested
+- Tech stack, framework, database, or architecture choices not specified
+- Performance targets, scalability requirements, security measures not asked for
+- UI details, design choices, animations, styling not requested
+- Comments, docstrings, logging, tests, documentation not asked for
+- If the user didn't say it, it's an invention. FAIL.
+
+### 3. NO IMPROVEMENTS
+Did you try to "improve" or "enhance" things the user didn't ask to improve?
+- "While you're at it, also..." is FORBIDDEN
+- Adding "best practices" the user didn't request is FORBIDDEN
+- Expanding scope beyond what was asked is FORBIDDEN
+- This always causes bugs. FAIL.
+
+### 4. NO ASSUMPTIONS
+Is the request ambiguous? If so, did you ask the user FIRST using the `question` tool?
+- If the user might mean X or Y, you must NOT guess
+- If you fill in ambiguous blanks with assumptions, it's a FAIL
+- The correct behavior is: ask user → get clarification → execute with clarification
+
+### 5. LOGIC FIDELITY
+Does your implementation follow ONLY the scope and logic the user defined?
+- User said X → you must implement X, not X+Y, not "X and also Y"
+- Combining multiple separate user requests into one task is a FAIL
+- Each separate request must be implemented individually
+
+### 6. EXECUTION ADAPTATION
+Is your approach adapted to the specific task WITHOUT changing the scope?
+- A simple change needs a simple edit, a complex feature needs planning
+- But the scope must remain exactly what the user requested
+- Adapting by adding new requirements not in the original request is a FAIL (invention)
+
+### 7. CONTEXT SUFFICIENCY
+Do you have enough context to execute this correctly?
+- If you need file paths, directory locations, or code references, read them first
+- If you need historical decisions or project conventions, check the workspace summary
+- If you are missing critical context to do your job, ask the user with `question`
+
+## Question vs Command
+
+If the user asked a QUESTION (ends with ?), you should ONLY answer it. Not implement, not create, not fix, not modify files. Just answer and report.
+
+If the user gave a COMMAND (imperative), you should execute ONLY what was asked. Nothing more.
+
+## Examples
+
+**"Add a button that changes background to blue"**
+FAIL if you add: animations, hover states, localStorage, WCAG compliance, tests, event handlers, transitions
+PASS if you implement: just the button that changes the background color
+
+**"Build a REST API for a todo app"**
+FAIL if you specify: FastAPI, PostgreSQL, AWS, JWT, Docker, Redis, any tech not chosen by user
+PASS if you build: the API without assuming the stack (ask the user if needed)
+
+**"Fix the errors in the checkout flow"**
+FAIL if you invent: specific bugs (rounding, card validation, timeout) and requirements
+PASS if you: ask the user which errors first, then fix exactly those
+
+**"Make login page load faster"**
+FAIL if you paraphrase into: lazy loading, code splitting, image compression, sub-200ms target
+PASS if you execute verbatim: "Make login page load faster"
+
+**"Create a function that adds two numbers"**
+FAIL if you add: input validation, overflow handling, tests, logging, error wrappers, docstrings
+PASS if you create: just the add function, nothing else
+
+**"Add dark mode toggle" AND "Update footer to 2026" (two separate requests)**
+FAIL if you combine both into one implementation
+PASS if you implement each as its own separate change
+
+---
+
+Before executing, ask yourself:
+- Is this EXACTLY what the user asked for?
+- Did I add anything they didn't mention?
+- Did I assume anything I should have asked about first?
+
+Be strict with yourself. When in doubt, ask with `question`. 
+
+**MANDATORY**: If you cannot pass all 7 checks, you MUST use the question tool to ask the user for clarification before proceeding. Do not guess, do not assume, do not invent.
+
+---

@@ -22,6 +22,13 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     return project.workspace.get(workspaceID)
   }
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
+  const msgCount = createMemo(() => sync.data.message[props.sessionID]?.length ?? 0)
+  const contextLabel = createMemo(() => {
+    const total = msgCount()
+    const limit = session()?.metadata?.context_limit ?? -1
+    const shown = limit === -1 ? total : limit
+    return `${shown}/${total}`
+  })
 
   return (
     <Show when={session()}>
@@ -80,6 +87,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 <Show when={session()!.share?.url}>
                   <text fg={theme.textMuted}>{session()!.share!.url}</text>
                 </Show>
+                <text fg={theme.textMuted}>{contextLabel()} messages</text>
               </box>
             </pluginRuntime.Slot>
             <pluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
