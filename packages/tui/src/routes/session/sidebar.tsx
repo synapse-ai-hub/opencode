@@ -74,32 +74,32 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                   <text fg={theme.textMuted}>{props.sessionID}</text>
                 </Show>
                 <Show when={session()!.workspaceID}>
-                  <text fg={theme.textMuted}>
-                    <Show
-                      when={workspace()}
-                      fallback={<WorkspaceLabel type="unknown" name={session()!.workspaceID!} status="error" icon />}
-                    >
-                      {(item) => (
-                        <WorkspaceLabel
-                          type={item().type}
-                          name={item().name}
-                          status={project.workspace.status(item().id) ?? "error"}
-                          icon
-                        />
-                      )}
-                    </Show>
-                  </text>
+              <text fg={theme.textMuted}>
+                <Show
+                  when={workspace()}
+                  fallback={<WorkspaceLabel type="unknown" name={session()!.workspaceID!} status="error" icon />}
+                >
+                  {(item) => (
+                    <WorkspaceLabel
+                      type={item().type}
+                      name={item().name}
+                      status={project.workspace.status(item().id) ?? "error"}
+                      icon
+                    />
+                  )}
                 </Show>
-                <Show when={session()!.share?.url}>
-                  <text fg={theme.textMuted}>{session()!.share!.url}</text>
-                </Show>
-              </box>
-            </pluginRuntime.Slot>
-            <box flexShrink={0} gap={1} paddingRight={1}>
-              <text fg={theme.text}>Messages </text>
-              <text fg={theme.textMuted}>{contextLabel()}</text>
-            </box>
-            <pluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
+              </text>
+            </Show>
+            <Show when={session()!.share?.url}>
+              <text fg={theme.textMuted}>{session()!.share!.url}</text>
+            </Show>
+            <text>
+              <span style={{ fg: theme.text }}><b>Messages </b></span>
+              <span style={{ fg: theme.textMuted }}>{contextLabel()}</span>
+            </text>
+          </box>
+        </pluginRuntime.Slot>
+        <pluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
           </box>
         </scrollbox>
 
