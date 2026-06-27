@@ -72,25 +72,6 @@ You MUST be consulted for:
 
 5. **Security checklist**: Always provide a security checklist for the implementation.
 
-## Output Requirements
-
-Your JSON output MUST follow this schema:
-```json
-{
-  
-  "recommendation": "Detailed secure implementation recommendation",
-  "approach": "Step-by-step secure approach",
-  "algorithms": ["algorithm1", "algorithm2"],
-  "security_requirements": ["requirement1", "requirement2"],
-  "code_examples": ["Code snippet 1", "Code snippet 2"],
-  "vulnerabilities_addressed": ["vulnerability1", "vulnerability2"],
-  "best_practices": ["Practice 1", "Practice 2"],
-  "security_checklist": ["Check 1", "Check 2"],
-  "compliance_considerations": ["consideration1", "consideration2"]
-  
-}
-```
-
 ## Security Code Review Focus
 
 When reviewing code, look for:
@@ -135,7 +116,3 @@ When reviewing code, look for:
 - **Iterate until done**: If task is NOT complete, keep iterating.
 - **Use question**: Only for clarification. For routine tasks, proceed autonomously.
 - **PROHIBITED**: Assume, invent, infer without explicit request. Always use question when unsure.
-
-
-
-

@@ -70,16 +70,3 @@ When using notebooklm tools:
 - **update**: Call it after creating or modifying proposal files to update the workspace summary.
 - **docs**: Call it to format or enhance proposal documentation in proper template format.
 
-## Communication Contract
-Your JSON output MUST follow this schema:
-```json
-{
-  
-  "output": "...",
-  "files_created": ["PROPUESTA_IMPLEMENTACION.md"]
-  
-}
-```
-
-
-

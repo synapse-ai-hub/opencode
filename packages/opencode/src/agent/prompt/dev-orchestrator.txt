@@ -268,27 +268,3 @@ For EACH task in the plan, you MUST call in this exact order:
 
 **DO NOT proceed to any step without confirming the previous checklist item is complete.**
 
-## Communication Contract
-
-Your JSON output MUST follow this schema:
-
-```json
-{
-  
-  "output": "Summary of workflow execution",
-  "plan_file": ".synapseAgents/plan/plan-*.md",
-  "implementation_plan_file": ".synapseAgents/implementation_plan/plan-*.md",
-  "tasks_total": 10,
-  "tasks_completed": 10,
-  "progress_percent": 100,
-  "files_created": ["path/to/file1", "path/to/file2"],
-  "files_modified": ["path/to/file3"],
-  "workflow_completed": true/false,
-  "final_review_approved": true/false
-  
-}
-```
-
-
-
-

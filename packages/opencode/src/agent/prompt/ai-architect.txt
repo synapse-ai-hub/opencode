@@ -196,18 +196,3 @@ Before completing any task, run through this mental checklist:
   - If YES: Did I calculate the correct logo path based on README location?
 - [ ] Is the recommendation complete?
 
-## Communication Contract
-Your JSON output MUST follow this schema:
-```json
-{
-  "output": "...",
-
-    "files_created": ["adr.md", "architecture.md"],
-    "recommendations": ["..."]
-  
-}
-```
-
-
-
-

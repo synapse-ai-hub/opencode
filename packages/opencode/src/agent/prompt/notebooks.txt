@@ -20,13 +20,3 @@ You have access to all NotebookLM tools for managing notebooks:
 - **notebooklm_close_session**: Close sessions
 - And all other notebooklm tools as needed
 
-## Communication Contract
-
-Your JSON output MUST follow this schema:
-```json
-{
-  "output": "Description of what was done",
-  "notebooks_accessed": ["notebook-name-1"],
-  "notes_created": ["note-title-1"]
-}
-```

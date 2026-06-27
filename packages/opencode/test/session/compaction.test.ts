@@ -816,18 +816,16 @@ describe("session.compaction.prune", () => {
 
 describe("session.compaction.process", () => {
   it.instance(
-    "throws when parent is not a user message",
+    "throws when no message has a compaction part",
     Effect.gen(function* () {
-      const test = yield* TestInstance
       const ssn = yield* SessionNs.Service
       const session = yield* ssn.create({})
       const msg = yield* createUserMessage(session.id, "hello")
-      const reply = yield* createAssistantMessage(session.id, msg.id, test.directory)
       const msgs = yield* ssn.messages({ sessionID: session.id })
 
       const exit = yield* Effect.exit(
         SessionCompaction.use.process({
-          parentID: reply.id,
+          parentID: msg.id,
           messages: msgs,
           sessionID: session.id,
           auto: false,
@@ -839,7 +837,7 @@ describe("session.compaction.process", () => {
         const error = Cause.squash(exit.cause)
         expect(error).toBeInstanceOf(Error)
         if (error instanceof Error) {
-          expect(error.message).toContain(`Compaction parent must be a user message: ${reply.id}`)
+          expect(error.message).toContain("Compaction parent must be a user message with a compaction part")
         }
       }
     }),
@@ -851,8 +849,11 @@ describe("session.compaction.process", () => {
       const events = yield* EventV2Bridge.Service
       const ssn = yield* SessionNs.Service
       const session = yield* ssn.create({})
-      const msg = yield* createUserMessage(session.id, "hello")
+      yield* createUserMessage(session.id, "hello")
+      yield* createSummaryCompaction(session.id)
       const msgs = yield* ssn.messages({ sessionID: session.id })
+      const parent = msgs.at(-1)?.info.id
+      expect(parent).toBeTruthy()
       const done = yield* Deferred.make<void, Error>()
       let seen = false
       const unsub = yield* events.listen((evt) => {
@@ -866,7 +867,7 @@ describe("session.compaction.process", () => {
       yield* Effect.addFinalizer(() => unsub)
 
       const result = yield* SessionCompaction.use.process({
-        parentID: msg.id,
+        parentID: parent!,
         messages: msgs,
         sessionID: session.id,
         auto: false,
@@ -883,11 +884,14 @@ describe("session.compaction.process", () => {
     Effect.gen(function* () {
       const ssn = yield* SessionNs.Service
       const session = yield* ssn.create({})
-      const msg = yield* createUserMessage(session.id, "hello")
+      yield* createUserMessage(session.id, "hello")
+      yield* createSummaryCompaction(session.id)
       const msgs = yield* ssn.messages({ sessionID: session.id })
+      const parent = msgs.at(-1)?.info.id
+      expect(parent).toBeTruthy()
 
       const result = yield* SessionCompaction.use.process({
-        parentID: msg.id,
+        parentID: parent!,
         messages: msgs,
         sessionID: session.id,
         auto: false,
@@ -911,11 +915,14 @@ describe("session.compaction.process", () => {
     Effect.gen(function* () {
       const ssn = yield* SessionNs.Service
       const session = yield* ssn.create({})
-      const msg = yield* createUserMessage(session.id, "hello")
+      yield* createUserMessage(session.id, "hello")
+      yield* createSummaryCompaction(session.id)
       const msgs = yield* ssn.messages({ sessionID: session.id })
+      const parent = msgs.at(-1)?.info.id
+      expect(parent).toBeTruthy()
 
       const result = yield* SessionCompaction.use.process({
-        parentID: msg.id,
+        parentID: parent!,
         messages: msgs,
         sessionID: session.id,
         auto: true,
@@ -1109,11 +1116,14 @@ describe("session.compaction.process", () => {
     Effect.gen(function* () {
       const ssn = yield* SessionNs.Service
       const session = yield* ssn.create({})
-      const msg = yield* createUserMessage(session.id, "hello")
+      yield* createUserMessage(session.id, "hello")
+      yield* createSummaryCompaction(session.id)
       const msgs = yield* ssn.messages({ sessionID: session.id })
+      const parent = msgs.at(-1)?.info.id
+      expect(parent).toBeTruthy()
 
       const result = yield* SessionCompaction.use.process({
-        parentID: msg.id,
+        parentID: parent!,
         messages: msgs,
         sessionID: session.id,
         auto: true,
@@ -1153,6 +1163,7 @@ describe("session.compaction.process", () => {
         url: "https://example.com/cat.png",
       })
       const msg = yield* createUserMessage(session.id, "current")
+      yield* createSummaryCompaction(session.id)
       const msgs = yield* ssn.messages({ sessionID: session.id })
 
       const result = yield* SessionCompaction.use.process({
@@ -1180,11 +1191,14 @@ describe("session.compaction.process", () => {
       const ssn = yield* SessionNs.Service
       const session = yield* ssn.create({})
       yield* createUserMessage(session.id, "earlier")
-      const msg = yield* createUserMessage(session.id, "current")
+      yield* createUserMessage(session.id, "current")
+      yield* createSummaryCompaction(session.id)
       const msgs = yield* ssn.messages({ sessionID: session.id })
+      const parent = msgs.at(-2)?.info.id
+      expect(parent).toBeTruthy()
 
       const result = yield* SessionCompaction.use.process({
-        parentID: msg.id,
+        parentID: parent!,
         messages: msgs,
         sessionID: session.id,
         auto: true,
@@ -1230,8 +1244,11 @@ describe("session.compaction.process", () => {
         const events = yield* EventV2Bridge.Service
         const ready = yield* Deferred.make<void>()
         const session = yield* ssn.create({})
-        const msg = yield* createUserMessage(session.id, "hello")
+        yield* createUserMessage(session.id, "hello")
+        yield* createSummaryCompaction(session.id)
         const msgs = yield* ssn.messages({ sessionID: session.id })
+        const parent = msgs.at(-1)?.info.id
+        expect(parent).toBeTruthy()
         const off = yield* events.listen((evt) => {
           if (evt.type !== SessionStatus.Event.Status.type) return Effect.void
           const data = evt.data as typeof SessionStatus.Event.Status.data.Type
@@ -1243,7 +1260,7 @@ describe("session.compaction.process", () => {
 
         const fiber = yield* SessionCompaction.use
           .process({
-            parentID: msg.id,
+            parentID: parent!,
             messages: msgs,
             sessionID: session.id,
             auto: false,
@@ -1274,11 +1291,14 @@ describe("session.compaction.process", () => {
         return yield* Effect.gen(function* () {
           const ssn = yield* SessionNs.Service
           const session = yield* ssn.create({})
-          const msg = yield* createUserMessage(session.id, "hello")
+          yield* createUserMessage(session.id, "hello")
+          yield* createSummaryCompaction(session.id)
           const msgs = yield* ssn.messages({ sessionID: session.id })
+          const parent = msgs.at(-1)?.info.id
+          expect(parent).toBeTruthy()
           const fiber = yield* SessionCompaction.use
             .process({
-              parentID: msg.id,
+              parentID: parent!,
               messages: msgs,
               sessionID: session.id,
               auto: false,
@@ -1318,10 +1338,13 @@ describe("session.compaction.process", () => {
       return Effect.gen(function* () {
         const ssn = yield* SessionNs.Service
         const session = yield* ssn.create({})
-        const msg = yield* createUserMessage(session.id, "hello")
+        yield* createUserMessage(session.id, "hello")
+        yield* createSummaryCompaction(session.id)
         const msgs = yield* ssn.messages({ sessionID: session.id })
+        const parent = msgs.at(-1)?.info.id
+        expect(parent).toBeTruthy()
         yield* SessionCompaction.use.process({
-          parentID: msg.id,
+          parentID: parent!,
           messages: msgs,
           sessionID: session.id,
           auto: false,
@@ -1359,9 +1382,12 @@ describe("session.compaction.process", () => {
       return Effect.gen(function* () {
         const ssn = yield* SessionNs.Service
         const session = yield* ssn.create({})
-        const msg = yield* createUserMessage(session.id, "hello")
+        yield* createUserMessage(session.id, "hello")
+        yield* createSummaryCompaction(session.id)
         const msgs = yield* ssn.messages({ sessionID: session.id })
-        yield* SessionCompaction.use.process({ parentID: msg.id, messages: msgs, sessionID: session.id, auto: false })
+        const parent = msgs.at(-1)?.info.id
+        expect(parent).toBeTruthy()
+        yield* SessionCompaction.use.process({ parentID: parent!, messages: msgs, sessionID: session.id, auto: false })
 
         const summary = (yield* ssn.messages({ sessionID: session.id })).find(
           (item) => item.info.role === "assistant" && item.info.summary,

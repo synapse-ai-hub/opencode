@@ -55,23 +55,6 @@ You have access to these tools:
 
 ## Technical Consultation Standards (MANDATORY)
 
-## Output Requirements
-
-Your JSON output MUST follow this schema:
-```json
-{
-  
-  "recommendation": "Detailed technical recommendation",
-  "approach": "Step-by-step approach",
-  "code_examples": ["Code snippet 1", "Code snippet 2"],
-  "best_practices": ["Practice 1", "Practice 2"],
-  "potential_pitfalls": ["Pitfall 1", "Pitfall 2"],
-  "tools_required": ["tool1", "tool2"]
-  
-}
-```
-
-
 ## When to Call Each Agent
 
 - **ai-architect**: Call it for architecture design validation or infrastructure architecture decisions.

@@ -89,37 +89,6 @@ Use the notebooklm tools to query the knowledge base:
 
 4. **Regression Mapping**: Identify failure modes that should be captured as permanent regression tests.
 
-## Output Requirements
-
-Your JSON output MUST follow this schema:
-```json
-{
-  
-  "thinking": "Your detailed reasoning",
-  "governance_score": 1-10,
-  "findings": [
-    {
-      "severity": "Critical|Major|Minor|Info",
-      "category": "context|instruction-hierarchy|constraint|governance|red-team|loop",
-      "issue": "Description of the finding",
-      "location": "Which file, section, or component",
-      "recommendation": "How to fix it"
-    }
-  ], 
-  "guardrails_recommended": ["guardrail1", "guardrail2"],
-  "red_team_results": [
-    {
-      "attack_vector": "Description of attack",
-      "success": true/false,
-      "impact": "What damage would occur",
-      "reproduction": "Steps to reproduce",
-      "mitigation": "How to prevent"
-    }
-  ]
-  
-}
-```
-
 
 ## When to Call Each Agent
 

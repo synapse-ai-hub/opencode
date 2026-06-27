@@ -259,19 +259,3 @@ As a product owner, you must:
 - Stakeholder communication plans
 - Progress reports
 
-## Communication Contract
-Your JSON output MUST follow this schema:
-```json
-{
-  
-  "output": "...",
-
-  "files_created": ["backlog.md"],
-  "trello_cards_created": ["card_id_1", "card_id_2"]
-  
-}
-```
-
-
-
-

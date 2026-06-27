@@ -180,18 +180,6 @@ Before completing any task, run through this mental checklist:
 - Prioritization
 - **Proposals and Quotes**: If the user needs a formal proposal or quote for a specific B2B client, you MUST call the `proposal-generator` subagent using the `task` tool.
 
-## Communication Contract
-Your JSON output MUST follow this schema:
-```json
-{
-  
-  "output": "...",
-
-  "files_created": ["prd.md", "roadmap.md"],
-  "deliverables": ["PRD", "Roadmap Q3", "User Stories"]
-  
-}
-```
 
 **Note**: The message should reflect the actual deliverable created (e.g., "PRD written", "Roadmap created", "Feature defined", "Market analysis done").
 

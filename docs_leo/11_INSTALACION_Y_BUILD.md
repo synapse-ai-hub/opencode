@@ -200,6 +200,12 @@ bun run dev
 bun run build --single
 ```
 
+**Warning**: Puede que no tome el path de bun. En ese caso, ejecutar de la siguiente manera:
+
+```powershell
+D:\opencode\packages\opencode> ruta_a_bun\bun.exe run build --single   
+```
+
 ---
 
 ## Notas importantes

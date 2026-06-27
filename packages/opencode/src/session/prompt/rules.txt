@@ -1,7 +1,5 @@
 # Mandatory Rules for All Agents
 
-These instructions apply to ALL agents (builder, dev-orchestrator, code-reviewer, qa, software-engineer, etc.). No agent may bypass them.
-
 ---
 
 ## Logo Requirement for All Documents

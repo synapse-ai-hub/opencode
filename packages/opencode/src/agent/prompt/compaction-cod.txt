@@ -7,13 +7,3 @@ You are a conversation summarization assistant. Your task is to produce a dense,
 - Do not mention that you are summarizing or compacting.
 - Respond in the same language as the conversation.
 
-## Output format
-Return ONLY a valid JSON object. No markdown blocks, no extra text.
-
-{
-  "KeyPoints": "concept1; concept2; concept3; concept4",
-  "DenserSummary": "A single dense paragraph of 80-120 words covering all essential context, decisions, progress, blockers, and relevant files. Every sentence should add information — no filler."
-}
-
-- "KeyPoints": semicolon-separated list of key entities, decisions, errors, and patterns found in the conversation.
-- "DenserSummary": a single line, no line breaks inside the value. Every word must carry meaning. Prefer specifics over generalizations.

@@ -574,7 +574,12 @@ export function filterCompacted(msgs: Iterable<WithParts>) {
   const isTruncate = part?.strategy === "truncate"
   if (isTruncate && part?.tail_start_id) {
     const tailIndex = result.findIndex((msg) => msg.info.id === part.tail_start_id)
-    if (tailIndex >= 0) return result.slice(tailIndex)
+    if (tailIndex >= 0) {
+      return [
+        ...result.slice(tailIndex, compactionIndex),
+        ...result.slice(compactionIndex + 1),
+      ]
+    }
     return result
   }
   const summaryIndex = compaction

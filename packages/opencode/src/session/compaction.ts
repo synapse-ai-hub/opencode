@@ -43,6 +43,12 @@ const PRUNE_PROTECTED_TOOLS = ["skill"]
 const DEFAULT_TAIL_TURNS = 2
 const MIN_PRESERVE_RECENT_TOKENS = 2_000
 const MAX_PRESERVE_RECENT_TOKENS = 8_000
+const FAKE_MODEL = {
+  limit: { context: 999_999_999, output: 0 },
+  api: { npm: "", id: "", url: "" },
+  providerID: "",
+  id: "",
+} as unknown as Provider.Model
 type Turn = {
   start: number
   end: number
@@ -308,7 +314,7 @@ export const layer = Layer.effect(
       const pct = input.percent ?? cfg.compaction?.truncate_percent ?? 0.3
       if (pct <= 0 || pct >= 1) return { tail_start_id: undefined }
 
-      const totalTokens = yield* estimate({ messages: input.messages, model: { limit: { context: 999_999_999 } } as any })
+      const totalTokens = yield* estimate({ messages: input.messages, model: FAKE_MODEL })
       if (totalTokens === 0) return { tail_start_id: undefined }
 
       const targetTokens = Math.floor(totalTokens * pct)
@@ -317,7 +323,7 @@ export const layer = Layer.effect(
 
       for (let i = 0; i < input.messages.length; i++) {
         const msg = input.messages[i]
-        const tokens = yield* estimate({ messages: [msg], model: { limit: { context: 999_999_999 } } as any })
+        const tokens = yield* estimate({ messages: [msg], model: FAKE_MODEL })
         accumulated += tokens
         if (accumulated >= targetTokens) {
           cutIndex = i + 1
@@ -326,10 +332,24 @@ export const layer = Layer.effect(
       }
 
       // Si no se encontró punto de corte, no truncar
-      if (cutIndex <= 0 || cutIndex >= input.messages.length) return { tail_start_id: undefined }
+      if (cutIndex <= 0 || cutIndex > input.messages.length) return { tail_start_id: undefined }
+      if (cutIndex >= input.messages.length) cutIndex = input.messages.length - 1
 
-      const firstKept = input.messages[cutIndex]
-      if (!firstKept || firstKept.info.role !== "user") return { tail_start_id: undefined }
+      let firstKept = input.messages[cutIndex]
+      if (!firstKept) return { tail_start_id: undefined }
+
+      // cutIndex can point to any role; advance to the next user message
+      if (firstKept.info.role !== "user") {
+        let found: (typeof input.messages)[number] | undefined
+        for (let j = cutIndex; j < input.messages.length; j++) {
+          if (input.messages[j].info.role === "user") {
+            found = input.messages[j]
+            break
+          }
+        }
+        if (!found) return { tail_start_id: undefined }
+        firstKept = found
+      }
 
       yield* Effect.logInfo("truncate", {
         sessionID: input.sessionID,
@@ -352,12 +372,14 @@ export const layer = Layer.effect(
       overflow?: boolean
       strategy?: string
     }) {
-      const parent = input.messages.findLast((m) => m.info.id === input.parentID)
-      if (!parent || parent.info.role !== "user") {
-        throw new Error(`Compaction parent must be a user message: ${input.parentID}`)
+      const compactionParent = input.messages.findLast((m) =>
+        m.parts.some((p): p is SessionV1.CompactionPart => p.type === "compaction"),
+      )
+      if (!compactionParent || compactionParent.info.role !== "user") {
+        throw new Error(`Compaction parent must be a user message with a compaction part`)
       }
-      const userMessage = parent.info
-      const compactionPart = parent.parts.find((part): part is SessionV1.CompactionPart => part.type === "compaction")
+      const userMessage = compactionParent.info
+      const compactionPart = compactionParent.parts.find((part): part is SessionV1.CompactionPart => part.type === "compaction")!
 
       let messages = input.messages
       let replay:
@@ -390,7 +412,7 @@ export const layer = Layer.effect(
       // Truncate strategy: cut the beginning, no LLM call needed
       if (strategy === "truncate") {
         const result = yield* truncate({
-          messages: input.messages,
+          messages,
           sessionID: input.sessionID,
           percent: cfg.compaction?.truncate_percent,
         })
