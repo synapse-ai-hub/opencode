@@ -604,7 +604,7 @@ export function Session() {
         dialog.replace(() => (
           <DialogPrompt
             title="Context size"
-            description={() => "Number of user/assistant turns to load (-1 for all)"}
+            description={() => <text>Number of user/assistant turns to load (-1 for all)</text>}
             value={String(session()?.metadata?.context_limit ?? -1)}
             onConfirm={(value) => {
               const num = parseInt(value, 10)

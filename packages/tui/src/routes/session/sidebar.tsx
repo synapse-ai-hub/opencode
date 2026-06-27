@@ -22,10 +22,16 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     return project.workspace.get(workspaceID)
   }
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
-  const msgCount = createMemo(() => sync.data.message[props.sessionID]?.length ?? 0)
   const contextLabel = createMemo(() => {
-    const total = msgCount()
-    const limit = session()?.metadata?.context_limit ?? -1
+    const msgs = sync.data.message[props.sessionID]
+    if (!msgs) return "0/0"
+    let total = 0
+    for (let i = 0; i < msgs.length; i++) {
+      const role = msgs[i].role
+      if (role === "user" || role === "assistant") total++
+    }
+    const meta = session()?.metadata
+    const limit = meta?.context_limit ?? -1
     const shown = limit === -1 ? total : limit
     return `${shown}/${total}`
   })
@@ -90,8 +96,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
               </box>
             </pluginRuntime.Slot>
             <box flexShrink={0} gap={1} paddingRight={1}>
-              <text fg={theme.textMuted}>Messages</text>
-              <text fg={theme.text}>{contextLabel()}</text>
+              <text fg={theme.textMuted}>Messages <span style={{ fg: theme.text }}>{contextLabel()}</span></text>
             </box>
             <pluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
           </box>
