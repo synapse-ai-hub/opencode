@@ -59,10 +59,6 @@ Your JSON output MUST follow this schema:
 ```json
 { 
   
-  "user_query": {
-      "hash": "[MANDATORY: Hash returned by log_query tool]",
-      "query": "[MANDATORY: Exact user query in the original language without modifying absolutely anything]"
-  },
   "output": "Summary of workspace update",
   "file_updated": "path/to/file.md",
   "summary_file": ".synapseAgents/workspace/workspace-summary.md",

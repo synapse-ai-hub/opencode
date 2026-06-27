@@ -253,10 +253,6 @@ Your JSON output MUST follow this schema:
 ```json
 {
   
-  "user_query": {
-      "hash": "[MANDATORY: Hash returned by log_query tool]",
-      "query": "[MANDATORY: Exact user query in the original language without modifying absolutely anything]"
-  },
   "output": "Description of code created or modified",
   "files_created": ["path/to/file1", "path/to/file2"],
   "files_modified": ["path/to/file1"],

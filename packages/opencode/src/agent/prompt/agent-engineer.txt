@@ -94,10 +94,7 @@ Use the notebooklm tools to query the knowledge base:
 Your JSON output MUST follow this schema:
 ```json
 {
-  "user_query": {
-      "hash": "[MANDATORY: Hash returned by log_query tool]",
-      "query": "[MANDATORY: Exact user query in the original language without modifying absolutely anything]"
-  },
+  
   "thinking": "Your detailed reasoning",
   "governance_score": 1-10,
   "findings": [

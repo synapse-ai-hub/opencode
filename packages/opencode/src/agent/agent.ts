@@ -32,6 +32,7 @@ import PROMPT_SOFTWARE_ENGINEER from "./prompt/software-engineer.txt"
 import PROMPT_SPEC_MINER from "./prompt/spec-miner.txt"
 import PROMPT_UPDATE from "./prompt/update.txt"
 import PROMPT_META_AGENT from "./prompt/meta-agent.txt"
+import PROMPT_NOTEBOOKS from "./prompt/notebooks.txt"
 
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
@@ -111,7 +112,7 @@ export const layer = Layer.effect(
           ...referenceDirs.map((dir) => path.join(dir, "*")),
         ]
         const defaults = Permission.fromConfig({
-          "*": "allow",
+          "*": "deny",
           doom_loop: "ask",
           external_directory: {
             "*": "ask",
@@ -165,8 +166,23 @@ export const layer = Layer.effect(
               glob: "allow", grep: "allow", bash: "deny", lsp: "deny",
               apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
               question: "allow",
+               "notebooklm_ask_question": "allow",
               task: { "*": "deny" },
               skill: { "*": "deny" },
+            }), user),
+            options: {},
+          },
+          "notebooks": {
+            name: "notebooks",
+            description: "Notebook Manager - List, search, create, and query NotebookLM notebooks",
+            mode: "primary",
+            color: "#059669",
+            temperature: 0.3,
+            topP: 0.85,
+            prompt: PROMPT_NOTEBOOKS,
+            permission: Permission.merge(defaults, Permission.fromConfig({
+               "notebooklm_*": "allow",
+               "notebooklm_ask_question": "deny",
             }), user),
             options: {},
           },
@@ -183,6 +199,7 @@ export const layer = Layer.effect(
               glob: "allow", grep: "allow", bash: "deny", lsp: "deny",
               apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
               question: "deny",
+               "notebooklm_ask_question": "allow",
               task: { "*": "deny", "llm-auditor": "allow", "ai-architect": "allow",
                 "security-specialist": "allow", "code-reviewer": "allow", "software-engineer": "allow",
                 "qa": "allow", "spec-miner": "allow", "ml-engineer": "allow", "ai-research": "allow",
@@ -212,6 +229,7 @@ export const layer = Layer.effect(
               lsp: "allow", apply_patch: "allow", todowrite: "allow",
               webfetch: "allow", websearch: "allow",
               question: "allow",
+               "notebooklm_ask_question": "allow",
               task: { "*": "deny", "ai-research": "allow", "software-engineer": "allow",
                 "security-specialist": "allow", "spec-miner": "allow",
                 "workspace-explorer": "allow", "update": "allow",
@@ -241,6 +259,7 @@ export const layer = Layer.effect(
               lsp: "allow", apply_patch: "allow", todowrite: "allow",
               webfetch: "allow", websearch: "allow",
               question: "allow",
+               "notebooklm_ask_question": "allow",
               task: { "*": "deny", "software-engineer": "allow", "spec-miner": "allow",
                 "workspace-explorer": "allow", "update": "allow",
                 "product-manager": "allow", "ai-architect": "allow",
@@ -262,6 +281,7 @@ export const layer = Layer.effect(
               glob: "allow", grep: "allow", bash: "deny", lsp: "deny",
               apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
               question: "allow",
+               "notebooklm_ask_question": "allow",
               task: { "*": "deny", "security-specialist": "allow",
                 "software-engineer": "allow", "ai-architect": "allow", "ai-research": "allow",
                 "spec-miner": "allow", "product-manager": "allow", "product-owner": "allow",
@@ -404,7 +424,9 @@ export const layer = Layer.effect(
               glob: "allow", grep: "allow",               bash: { "*": "allow", "git restore *": "deny", "git restore": "deny" }, lsp: "deny",
                apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
                audit_scoring: "allow",
-               question: "allow", task: { "*": "deny", "ai-architect": "allow", "ai-research": "allow",
+              question: "allow",
+               "notebooklm_ask_question": "allow",
+              task: { "*": "deny", "ai-architect": "allow", "ai-research": "allow",
                  "docs": "allow", "update": "allow", "agent-engineer": "allow", "ml-engineer": "allow" },
                skill: { "*": "deny", "global-standards": "allow", "llm-review": "allow",
                   "prompt-engineer": "allow", "evaluation-specialist": "allow",
@@ -425,6 +447,7 @@ export const layer = Layer.effect(
               glob: "allow", grep: "allow", bash: "deny", lsp: "deny",
               apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
               question: "allow",
+               "notebooklm_ask_question": "allow",
               task: { "*": "deny", "ai-architect": "allow", "ai-research": "allow",
                 "spec-miner": "allow", "code-reviewer": "allow", "security-specialist": "allow",
                 "product-manager": "allow", "docs": "allow", "update": "allow",
@@ -555,6 +578,7 @@ export const layer = Layer.effect(
               glob: "allow", grep: "allow", bash: "deny", lsp: "deny",
               apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
               question: "allow",
+               "notebooklm_ask_question": "allow",
               task: { "*": "deny", "ai-architect": "allow", "ai-research": "allow",
                 "product-manager": "allow", "docs": "allow",
                 "update": "allow", "spec-miner": "allow",
@@ -569,13 +593,14 @@ export const layer = Layer.effect(
             name: "proposal-generator",
             description: "Proposal Generator - Creates detailed technical and business proposals",
             mode: "subagent",
-            color: "#10B981",
+            hidden: true,
             prompt: PROMPT_PROPOSAL_GENERATOR,
             permission: Permission.merge(defaults, Permission.fromConfig({
                read: "allow", edit: "allow", write: "allow",
               glob: "allow", grep: "allow", bash: "deny", lsp: "deny",
               apply_patch: "deny", todowrite: "deny", webfetch: "allow", websearch: "allow",
               question: "allow",
+              "notebooklm_ask_question": "allow",
               task: { "*": "deny", "update": "allow", "docs": "allow" },
               skill: { "*": "deny", "proposal-framework": "allow", "global-standards": "allow",
                 "docs-template": "allow" },

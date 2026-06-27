@@ -241,13 +241,9 @@ Example of interpreted insight:
 Your JSON output MUST follow this schema:
 ```json
 {
-  "status": "success|error",
-  "message": "EDA completed with visualizations",
-  "data": {
-    "output": "...",
-    "files_created": ["data-analyst/20260427_172422/analysis_results.json", "outliers.png", "heatmap.png"],
-    "analysis_summary": "..."
-  }
+  "output": "...",
+  "files_created": ["data-analyst/20260427_172422/analysis_results.json", "outliers.png", "heatmap.png"],
+  "analysis_summary": "..."  
 }
 ```
 

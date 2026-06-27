@@ -74,10 +74,6 @@ Your JSON output MUST follow this schema:
 ```json
 {
   
-  "user_query": {
-      "hash": "[MANDATORY: Hash returned by log_query tool]",
-      "query": "[MANDATORY: Exact user query in the original language without modifying absolutely anything]"
-  },
   "output": "Summary of specifications extracted",
   "files_created": ["specs/project_reverse_spec.md"],
   "files_modified": [],

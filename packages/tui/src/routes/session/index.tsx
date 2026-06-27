@@ -46,6 +46,7 @@ import { useEditorContext } from "../../context/editor"
 import { openEditor } from "../../editor"
 import { useDialog } from "../../ui/dialog"
 import { DialogAlert } from "../../ui/dialog-alert"
+import { DialogSelect, type DialogSelectOption } from "../../ui/dialog-select"
 import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
 import type { PromptInfo } from "../../component/prompt/history"
@@ -569,12 +570,26 @@ export function Session() {
           })
           return
         }
-        void sdk.client.session.summarize({
-          sessionID: route.sessionID,
-          modelID: selectedModel.modelID,
-          providerID: selectedModel.providerID,
-        })
-        dialog.clear()
+        const options: DialogSelectOption<string>[] = [
+          { title: "Original", value: "original", description: "Standard summarization via LLM" },
+          { title: "Chain of Density", value: "cod", description: "Dense structured JSON summary" },
+          { title: "Truncate", value: "truncate", description: "Cut beginning of conversation (no LLM call)" },
+        ]
+        dialog.replace(() => (
+          <DialogSelect
+            title="Compaction strategy"
+            options={options}
+            onSelect={(option) => {
+              void sdk.client.session.summarize({
+                sessionID: route.sessionID,
+                modelID: selectedModel.modelID,
+                providerID: selectedModel.providerID,
+                strategy: option.value,
+              })
+              dialog.clear()
+            }}
+          />
+        ))
       },
     },
     {
@@ -1455,7 +1470,7 @@ function UserMessage(props: {
         <box
           marginTop={1}
           border={["top"]}
-          title=" Compaction "
+          title={` Compaction ${compaction()!.strategy ?? ""} `}
           titleAlignment="center"
           borderColor={theme.borderActive}
         />

@@ -317,7 +317,6 @@ export const layer = Layer.effect(
 
       for (let i = 0; i < input.messages.length; i++) {
         const msg = input.messages[i]
-        if (msg.info.role !== "user") continue
         const tokens = yield* estimate({ messages: [msg], model: { limit: { context: 999_999_999 } } as any })
         accumulated += tokens
         if (accumulated >= targetTokens) {
