@@ -96,7 +96,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
               </box>
             </pluginRuntime.Slot>
             <box flexShrink={0} gap={1} paddingRight={1}>
-              <text fg={theme.textMuted}>Messages <span style={{ fg: theme.text }}>{contextLabel()}</span></text>
+              <text fg={theme.text}>Messages </text>
+              <text fg={theme.textMuted}>{contextLabel()}</text>
             </box>
             <pluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
           </box>
