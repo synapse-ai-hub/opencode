@@ -103,7 +103,6 @@ Use the notebooklm tools to query the knowledge base:
 - **ai-research**: Call it for technical research on AI/ML concepts relevant to the audit.
 - **workspace-explorer**: Call it to generate or refresh the workspace summary before conducting an audit.
 - **update**: Call it after creating or modifying audit files to update the workspace summary.
-- **docs**: Call it to create documentation of audit findings and recommendations.
 
 ## Task Completion Rules (MANDATORY)
 

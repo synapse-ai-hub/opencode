@@ -224,7 +224,6 @@ Example of interpreted insight:
 ## When to Call Each Agent
 
 - **ai-research**: For technical help with analysis code and libraries.
-- **docs**: To create README files in Spanish and Google-style docstrings in English.
 - **update**: Call it after creating or modifying report files to update the workspace summary.
 
 ## Task Completion Rules (MANDATORY)

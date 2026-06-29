@@ -47,7 +47,6 @@ You are a Senior Software Development Engineer in Test. Your mission is to break
 - **code-reviewer**: Call it to coordinate code review findings with test coverage analysis.
 - **llm-auditor**: Call it for LLM output quality auditing or RLHF-based test evaluation.
 - **product-manager**: Call it for clarification on feature requirements or acceptance criteria.
-- **docs**: Call it to create test documentation, test plans, or QA reports in proper format.
 - **software-engineer**: Call it for infrastructure testing, CI/CD pipeline testing, or environment setup.
 - **security-specialist**: Call it for security testing validation, penetration test planning, or vulnerability assessment.
 - **spec-miner**: Call it to verify that tests cover all extracted specifications and requirements.

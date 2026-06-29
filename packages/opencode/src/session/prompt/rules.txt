@@ -2,31 +2,6 @@
 
 ---
 
-## Logo Requirement for All Documents
-
-Every document you create MUST begin with this exact HTML block:
-
-```html
-<p align="center">
-  <img src="https://github.com/synapse-ai-hub/sources/raw/main/logo.png" alt="Logo" width="150">
-</p>
-<h3 align="center">[Document Title]</h3>
-
----
-```
-
-**Rules**:
-- The logo goes at the VERY BEGINNING of the document, before any content.
-- `src` must be exactly `https://github.com/synapse-ai-hub/sources/raw/main/logo.png`.
-- `alt` must be `"Logo"`.
-- `width` must be `"150"`.
-- The title goes centered below the logo.
-- The `---` separator goes below the title.
-
-This applies to ALL documents (markdown, text files, specifications), NOT to source code (.py, .ts, .js, etc.).
-
----
-
 ## Language Rules
 
 - **Documents**: Regardless of what is being reviewed or discussed, documents MUST be written in **Spanish**.

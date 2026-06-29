@@ -47,7 +47,6 @@ You are an expert code reviewer specializing in Logic Fidelity and Syntax Perfec
 - **ai-research**: Call it for technical research on AI/ML libraries or frameworks used in the code.
 - **product-manager**: Call it for clarification on product requirements or feature specs.
 - **qa**: Call it to coordinate testing strategies or verify edge cases identified during review.
-- **docs**: Call it to create documentation for reviewed code or API references.
 - **security-specialist**: Call it when security vulnerabilities are found during code review.
 - **spec-miner**: Call it to verify that the code implements the extracted specifications faithfully.
 - **software-engineer**: Call it for consultation on DevOps, infrastructure, or database aspects of the code.

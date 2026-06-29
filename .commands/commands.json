@@ -1,0 +1,23 @@
+{
+    "commands": [
+               
+        {
+            "alias": "cmds",
+            "command": "python .commands/commands/list_cmds.py",
+            "description": "Lista comandos disponibles."
+        },
+        
+        {
+            "alias": "sync",
+            "command": "python .commands/commands/quick_sync.py",
+            "description": "Sincroniza con fetch + rebase (-b rama, default: main)."
+        },
+        {
+            "alias": "push",
+            "command": "python .commands/commands/quick_push.py",
+            "description": "Commit + push con rebase (-m mensaje -b rama)."
+        }
+        
+        
+    ]
+}

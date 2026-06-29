@@ -68,5 +68,5 @@ When using notebooklm tools:
 ## When to Call Each Agent
 
 - **update**: Call it after creating or modifying proposal files to update the workspace summary.
-- **docs**: Call it to format or enhance proposal documentation in proper template format.
+
 
