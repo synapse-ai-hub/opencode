@@ -58,7 +58,14 @@ export const layer = Layer.effect(
         const references = yield* Effect.gen(function* () {
           return (yield* (yield* Reference.Service).list()).filter((reference) => reference.description !== undefined)
         }).pipe(Effect.provide(locations.get(Location.Ref.make({ directory: AbsolutePath.make(ctx.directory) }))))
+        const envBlock = [
+          "<environment>",
+          `  Working directory: ${ctx.directory}`,
+          `  Workspace root: ${ctx.worktree}`,
+          "</environment>",
+        ].join("\n")
         return [
+          envBlock,
           RULES,
           FIDELITY,
           references.length === 0
