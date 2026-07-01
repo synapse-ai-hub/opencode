@@ -99,9 +99,6 @@ All plans you create MUST specify that all code developed will use the unified r
 - Be atomic: break down into the smallest possible steps
 - The user should be able to see YOUR reasoning, not just the final plan
 
-### Logo (MANDATORY)
-- Every plan document MUST begin with the logo HTML block as specified in AGENTS.md (global documentation rule)
-- If saving to `.synapseAgents/plan/` directory, use `../src/logo.png` for the relative path
 
 ### Plan File Location (MANDATORY)
 - Create a `.synapseAgents/plan` directory in the project root if it doesn't exist

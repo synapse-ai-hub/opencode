@@ -301,7 +301,7 @@ export const layer = Layer.effect(
             topP: 0.65,
             prompt: PROMPT_BUILDER,
             permission: Permission.merge(defaults, Permission.fromConfig({
-               read: "allow", pdf: "allow", repo: "allow", edit: "allow", write: "allow",
+               read: "allow", pdf: "allow", repo: "allow", inject: "allow", edit: "allow", write: "allow",
               glob: "allow", grep: "allow",               bash: { "*": "allow", "git restore *": "deny", "git restore": "deny" }, lsp: "allow",
               apply_patch: "allow", todowrite: "allow", webfetch: "allow", websearch: "allow",
               question: "allow",
